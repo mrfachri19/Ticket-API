@@ -18,5 +18,7 @@ module.exports = {
         endOfLine: "auto",
       },
     ],
+    "prefer-destructuring": ["error", { object: true, array: false }],
+    "consistent-return": "off",
   },
 };

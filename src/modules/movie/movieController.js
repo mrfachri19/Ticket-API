@@ -1,16 +1,17 @@
 const movieModel = require("./movieModel");
 const helperWrapper = require("../../helper/wrapper");
+const redis = require("../../config/redis");
+const deleteFile = require("../../helper/upload/deleteFile");
 
 module.exports = {
   getAllMovie: async (request, response) => {
     try {
       let { page, limit, search, sort } = request.query;
-      page = Number(page);
-      limit = Number(limit);
+      page = Number(page) || 1;
+      limit = Number(limit) || 3;
       search = search || "";
       sort = sort || "name ASC";
 
-      // tambahkan proses default value
       let offset = page * limit - limit;
       const totalData = await movieModel.getCountMovie();
 
@@ -34,6 +35,12 @@ module.exports = {
       };
 
       const result = await movieModel.getAllMovie(limit, offset, search, sort);
+
+      redis.setex(
+        `getMovie:${JSON.stringify(request.query)}`,
+        3600,
+        JSON.stringify({ result, pageInfo })
+      );
 
       return helperWrapper.response(
         response,
@@ -63,6 +70,10 @@ module.exports = {
           null
         );
       }
+      // PROSES UNTUK MENYIMPAN DATA KE DALAM REDIS
+      // =====
+      redis.setex(`getMovie:${id}`, 3600, JSON.stringify(result));
+      // ======
       return helperWrapper.response(res, 200, "succes get data by id", result);
     } catch (error) {
       return helperWrapper.response(
@@ -92,6 +103,7 @@ module.exports = {
         director,
         duration,
         synopsis,
+        image: req.file ? req.file.filename : null,
       };
       const result = await movieModel.postMovie(setData);
       return helperWrapper.response(res, 200, "Succes create data", result);
@@ -133,6 +145,7 @@ module.exports = {
         director,
         duration,
         synopsis,
+        image: req.file ? req.file.filename : null,
         updatedAt: new Date(Date.now()),
       };
       // untuk mengupdate salah satu field saja
@@ -182,6 +195,7 @@ module.exports = {
       // };
 
       const result = await movieModel.deleteMovie(id);
+      deleteFile(`public/uploads/movie/${checkId[0].image}`);
       return helperWrapper.response(res, 200, "succes delete data", result);
     } catch (error) {
       return helperWrapper.response(

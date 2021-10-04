@@ -1,5 +1,6 @@
 const scheduleModel = require("./scheduleModel");
 const helperWrapper = require("../../helper/wrapper");
+const redis = require("../../config/redis");
 
 module.exports = {
   getAllSchedule: async (request, response) => {
@@ -46,6 +47,11 @@ module.exports = {
         };
         return data;
       });
+      redis.setex(
+        `getschedule:${JSON.stringify(request.query)}`,
+        3600,
+        JSON.stringify({ result, pageInfo })
+      );
 
       return helperWrapper.response(
         response,
@@ -82,6 +88,9 @@ module.exports = {
           null
         );
       }
+
+      redis.setex(`getSchedule:${id}`, 3600, JSON.stringify(result));
+
       return helperWrapper.response(
         res,
         200,
@@ -116,6 +125,9 @@ module.exports = {
           null
         );
       }
+
+      redis.setex(`getSchedule:${id}`, 3600, JSON.stringify(result));
+
       return helperWrapper.response(
         res,
         200,

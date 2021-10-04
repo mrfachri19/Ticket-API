@@ -102,14 +102,14 @@ module.exports = {
         statusPayment,
       };
       let result = await bookingModel.postBooking(setDataBooking);
-      seat.forEach(async (item) => {
+      seat.map(async (item) => {
         const setDataSeat = {
           bookingId: result.id,
           movieId,
           scheduleId,
           dateBooking,
           timeBooking,
-          ...item,
+          seat: item,
         };
         await seatBookingModel.postBooking(setDataSeat);
       });
