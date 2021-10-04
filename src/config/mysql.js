@@ -14,5 +14,4 @@ connection.connect((error) => {
   // eslint-disable-next-line no-console
   console.log("you are now connected db mysql ...");
 });
-
 module.exports = connection;
