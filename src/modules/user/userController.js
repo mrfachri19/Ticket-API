@@ -32,36 +32,6 @@ module.exports = {
     }
   },
   updatePassword: async (req, res) => {
-    //   try {
-    //     const { id } = req.params;
-    //     const checkId = await userModel.getUserById(id);
-    //     if (checkId.length < 1) {
-    //       return helperWrapper.response(
-    //         res,
-    //         404,
-    //         `data by id ${id} not found !`,
-    //         null
-    //       );
-    //     }
-
-    //     const { password } = req.body;
-    //     const hashPassword = await bcryptjs.hash(password, 10);
-    //     const setData = {
-    //       // id: uuidv4(),
-    //       password: hashPassword,
-    //     };
-
-    //     const result = await userModel.updatePassword(setData, id);
-    //     return helperWrapper.response(res, 200, "succes update data", result);
-    //   } catch (error) {
-    //     return helperWrapper.response(
-    //       res,
-    //       400,
-    //       `bad request (${error.message})`,
-    //       null
-    //     );
-    //   }
-    // },
     try {
       const { id } = req.params;
       const { newPassword, confirmPassword } = req.body;
@@ -69,11 +39,10 @@ module.exports = {
         const salt = bcryptjs.genSaltSync(10);
         const hash = bcryptjs.hashSync(confirmPassword, salt);
         const data = { password: hash };
-        const result = await userModel.getUserById(id, data);
+        const result = await userModel.get(id, data);
         if (result.affectedRows) {
           return helperWrapper.response(res, 200, "Success update pass");
         }
-        return helperWrapper.response(res, 200, "pass not update");
       }
       return helperWrapper.response(res, 403, "pass tidak sama");
     } catch (error) {
