@@ -21,6 +21,7 @@ module.exports = {
         noTelp,
         email,
         password: hashPassword,
+        role: "user",
       };
 
       const result = await authModel.register(setData);

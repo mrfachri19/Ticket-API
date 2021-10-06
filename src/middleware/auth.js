@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const helperWrapper = require("../helper/wrapper");
 const redis = require("../config/redis");
+// const userModel = require("../modules/user/userModel");
 
 module.exports = {
   authentication: (req, res, next) => {
@@ -19,6 +20,7 @@ module.exports = {
         );
       }
 
+      // eslint-disable-next-line no-shadow
       jwt.verify(token, "RAHASIA", (error, result) => {
         if (error) {
           return helperWrapper.response(res, 403, error.message);
@@ -37,12 +39,9 @@ module.exports = {
     });
   },
   isAdmin: (req, res, next) => {
-    // console.log(req.decodeToken);
-    // if (condition) {
-    // response error karena bukan admin
-    // }
-    // next
-    // ...
+    if (req.decodeToken.role !== "admin") {
+      return helperWrapper.response(res, 403, "not admin");
+    }
     next();
   },
 };

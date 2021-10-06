@@ -13,4 +13,5 @@
 "no-else-return": "off", // memperbolehkan penggunaan else didalam kondisi
 "no-param-reassign": ["error", { props: false }], // memperbolehkan suatu object untuk dimanipulasi
 
-!fachri!maulana@pakpahan10$
+!fachri!maulana@pakpahan10$ aws
+Fachri1907! redis

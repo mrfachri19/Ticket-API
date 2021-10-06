@@ -1,4 +1,4 @@
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 const bcryptjs = require("bcryptjs");
 const helperWrapper = require("../../helper/wrapper");
 const userModel = require("./userModel");
@@ -32,32 +32,55 @@ module.exports = {
     }
   },
   updatePassword: async (req, res) => {
+    //   try {
+    //     const { id } = req.params;
+    //     const checkId = await userModel.getUserById(id);
+    //     if (checkId.length < 1) {
+    //       return helperWrapper.response(
+    //         res,
+    //         404,
+    //         `data by id ${id} not found !`,
+    //         null
+    //       );
+    //     }
+
+    //     const { password } = req.body;
+    //     const hashPassword = await bcryptjs.hash(password, 10);
+    //     const setData = {
+    //       // id: uuidv4(),
+    //       password: hashPassword,
+    //     };
+
+    //     const result = await userModel.updatePassword(setData, id);
+    //     return helperWrapper.response(res, 200, "succes update data", result);
+    //   } catch (error) {
+    //     return helperWrapper.response(
+    //       res,
+    //       400,
+    //       `bad request (${error.message})`,
+    //       null
+    //     );
+    //   }
+    // },
     try {
       const { id } = req.params;
-      const checkId = await userModel.getUserById(id);
-      if (checkId.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `data by id ${id} not found !`,
-          null
-        );
+      const { newPassword, confirmPassword } = req.body;
+      if (newPassword === confirmPassword) {
+        const salt = bcryptjs.genSaltSync(10);
+        const hash = bcryptjs.hashSync(confirmPassword, salt);
+        const data = { password: hash };
+        const result = await userModel.getUserById(id, data);
+        if (result.affectedRows) {
+          return helperWrapper.response(res, 200, "Success update pass");
+        }
+        return helperWrapper.response(res, 200, "pass not update");
       }
-
-      const { password } = req.body;
-      const hashPassword = await bcryptjs.hash(password, 10);
-      const setData = {
-        id: uuidv4(),
-        password: hashPassword,
-      };
-
-      const result = await userModel.updatePassword(setData, id);
-      return helperWrapper.response(res, 200, "succes update data", result);
+      return helperWrapper.response(res, 403, "pass tidak sama");
     } catch (error) {
       return helperWrapper.response(
         res,
         400,
-        `bad request (${error.message})`,
+        `Bad request (${error.message})`,
         null
       );
     }

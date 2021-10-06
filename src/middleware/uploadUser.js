@@ -10,9 +10,30 @@ const storage = multer.diskStorage({
     // console.log(file);
     cb(null, new Date().toISOString().replace(/:/g, "-") + file.originalname);
   },
+  limits: {
+    fieldSize: 1024 * 1024 * 3,
+  },
 });
 
-const upload = multer({ storage }).single("image");
+const fileFilter = (req, file, cb) => {
+  if (
+    file.mimetype === "image/png" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/jpeg"
+  ) {
+    cb(null, true);
+  } else {
+    cb(null, false);
+  }
+};
+
+// const uploadFile = multer({
+//   storage: storage,
+//   limits: {
+//     fieldSize: 1024 * 1024 * 3,
+//   },
+// });
+const upload = multer({ storage, fileFilter }).single("image");
 
 // single : untuk mengupload file tapi yang di upload hanya 1 file saja
 // array : untuk mengupload file tapi yang di upload lebih dari 1 file
