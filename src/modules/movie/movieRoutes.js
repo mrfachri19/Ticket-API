@@ -26,12 +26,14 @@ Router.post(
 );
 Router.patch(
   "/:id",
+  middlewareAuth.authentication,
   middlewareUpload,
   middlewareRedis.clearMovieRedis,
   movieController.updateMovie
 );
 Router.delete(
   "/:id",
+  middlewareAuth.authentication,
   middlewareRedis.clearMovieRedis,
   movieController.deleteMovie
 );

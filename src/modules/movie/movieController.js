@@ -6,11 +6,12 @@ const deleteFile = require("../../helper/upload/deleteFile");
 module.exports = {
   getAllMovie: async (request, response) => {
     try {
-      let { page, limit, search, sort } = request.query;
+      let { page, limit, search, month, sort } = request.query;
       page = Number(page) || 1;
-      limit = Number(limit) || 3;
+      limit = Number(limit) || 10;
       search = search || "";
       sort = sort || "name ASC";
+      month = month || "";
 
       let offset = page * limit - limit;
       const totalData = await movieModel.getCountMovie();
@@ -19,14 +20,8 @@ module.exports = {
       if (totalPage < page) {
         offset = 0;
         page = 1;
-        // return helperWrapper.response(
-        //   response,
-        //   200,
-        //   "Succes get data",
-        //   result,
-        //   pageInfo
-        // );
       }
+
       const pageInfo = {
         page,
         totalPage,
@@ -34,7 +29,17 @@ module.exports = {
         totalData,
       };
 
-      const result = await movieModel.getAllMovie(limit, offset, search, sort);
+      const result = await movieModel.getAllMovie(
+        limit,
+        offset,
+        search,
+        month,
+        sort
+      );
+
+      if (result.length < 1) {
+        return helperWrapper.response(response, 200, `Data not found !`, []);
+      }
 
       redis.setex(
         `getMovie:${JSON.stringify(request.query)}`,

@@ -17,6 +17,10 @@ Router.get(
 );
 Router.patch("/:id", userController.updateUser);
 Router.get("/", userController.getDashboardUser);
-Router.put("/:id", userController.updatePassword);
+Router.patch(
+  "/update-password/:id",
+  middlewareAuth.authentication,
+  userController.updatePassword
+);
 Router.post("/:id", middlewareUpload, userController.updateImage);
 module.exports = Router;

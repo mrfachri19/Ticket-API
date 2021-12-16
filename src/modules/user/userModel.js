@@ -3,17 +3,15 @@ const connection = require("../../config/mysql");
 module.exports = {
   getUserById: (id) =>
     new Promise((resolve, reject) => {
-      connection.query(
-        "SELECT * FROM user WHERE id = ?",
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
+      connection.query("SELECT * FROM user WHERE id = ?", id, (err, result) => {
+        if (!err) {
+          const newResult = result;
+          delete newResult[0].password;
+          resolve(newResult);
+        } else {
+          reject(new Error(`SQL : ${err.sqlMessage}`));
         }
-      );
+      });
     }),
   updateUser: (data, id) =>
     new Promise((resolve, reject) => {
@@ -28,7 +26,7 @@ module.exports = {
             };
             resolve(newResult);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`Message ${error.message}`));
           }
         }
       );
@@ -51,34 +49,15 @@ module.exports = {
         }
       );
     }),
-  updatePassword: (data, id) =>
-    new Promise((resolve, reject) => {
-      connection.query(
-        "UPDATE user SET ? WHERE id = ?",
-        [data, id],
-        (error) => {
-          if (!error) {
-            const newResult = {
-              id,
-              ...data,
-            };
-            resolve(newResult);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
-        }
-      );
-    }),
   getDashboardUser: (movieId, location, premiere) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT MONTH(booking.createdAt) AS month, SUM(booking.totalPayment) AS total FROM `booking` JOIN schedule ON schedule.id = booking.scheduleId WHERE schedule.movieId = ? AND schedule.location = ? AND schedule.premiere = ? AND YEAR(booking.createdAt) = YEAR(NOW()) GROUP BY MONTH(booking.createdAt);",
-        [movieId, location, premiere],
-        (error, result) => {
-          if (!error) {
+        `SELECT MONTHNAME(b.createdAt) AS month, SUM(b.totalPayment) AS total FROM booking AS b JOIN schedule AS s ON b.movieId = s.movieId WHERE YEAR(b.createdAt) = YEAR(NOW()) AND b.movieId LIKE '%${movieId}%' AND s.premiere LIKE '%${premiere}%' AND s.location LIKE '%${location}%' GROUP BY MONTH(b.createdAt)`,
+        (err, result) => {
+          if (!err) {
             resolve(result);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );

@@ -5,28 +5,36 @@ const redis = require("../../config/redis");
 module.exports = {
   getAllSchedule: async (request, response) => {
     try {
-      let { page, limit, search, sort } = request.query;
-      page = Number(page);
-      limit = Number(limit);
-      search = search || "";
-      sort = sort || "price ASC";
-
+      let {
+        page,
+        limit,
+        searchLocation,
+        searchMovieId,
+        dateStart,
+        dateEnd,
+        sort,
+      } = request.query;
       // tambahkan proses default value
-      let offset = page * limit - limit;
-      const totalData = await scheduleModel.getCountSchedule();
+      page = Number(page) || 1;
+      limit = Number(limit) || 15;
+      searchLocation = searchLocation || "";
+      searchMovieId = searchMovieId || "";
+      sort = sort || "price ASC";
+      dateStart = dateStart || new Date().toISOString().split("T")[0];
+      dateEnd = dateEnd || "";
 
+      let offset = page * limit - limit;
+      const totalData = await scheduleModel.getCountSchedule(
+        searchLocation,
+        searchMovieId
+      );
       const totalPage = Math.ceil(totalData / limit);
+
       if (totalPage < page) {
         offset = 0;
         page = 1;
-        // return helperWrapper.response(
-        //   response,
-        //   200,
-        //   "Succes get data",
-        //   result,
-        //   pageInfo
-        // );
       }
+
       const pageInfo = {
         page,
         totalPage,
@@ -37,7 +45,10 @@ module.exports = {
       const result = await scheduleModel.getAllSchedule(
         limit,
         offset,
-        search,
+        searchLocation,
+        searchMovieId,
+        dateStart,
+        dateEnd,
         sort
       );
       const newResult = result.map((item) => {

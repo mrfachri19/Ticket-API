@@ -25,7 +25,21 @@ module.exports = {
           if (!error) {
             resolve(result);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL: ${error.sqlMessage}`));
+          }
+        }
+      );
+    }),
+  verifyUser: (data, id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "UPDATE user SET status = ? WHERE id = ?",
+        [data, id],
+        (err, result) => {
+          if (!err) {
+            resolve(result);
+          } else {
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );

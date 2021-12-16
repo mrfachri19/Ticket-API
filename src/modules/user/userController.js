@@ -1,4 +1,3 @@
-// const { v4: uuidv4 } = require("uuid");
 const bcryptjs = require("bcryptjs");
 const helperWrapper = require("../../helper/wrapper");
 const userModel = require("./userModel");
@@ -31,29 +30,7 @@ module.exports = {
       );
     }
   },
-  updatePassword: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { newPassword, confirmPassword } = req.body;
-      if (newPassword === confirmPassword) {
-        const salt = bcryptjs.genSaltSync(10);
-        const hash = bcryptjs.hashSync(confirmPassword, salt);
-        const data = { password: hash };
-        const result = await userModel.get(id, data);
-        if (result.affectedRows) {
-          return helperWrapper.response(res, 200, "Success update pass");
-        }
-      }
-      return helperWrapper.response(res, 403, "pass tidak sama");
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `Bad request (${error.message})`,
-        null
-      );
-    }
-  },
+
   updateUser: async (req, res) => {
     try {
       const { id } = req.params;
@@ -81,13 +58,6 @@ module.exports = {
         }
       });
 
-      // masi butuh perbaikan
-      // for (const data in setData) {
-      //   if (!setData[data]) {
-      //     delete setData[data];
-      //   }
-      // }
-
       const result = await userModel.updateUser(setData, id);
       return helperWrapper.response(res, 200, "succes update data", result);
     } catch (error) {
@@ -95,6 +65,49 @@ module.exports = {
         res,
         400,
         `bad request (${error.message})`,
+        null
+      );
+    }
+  },
+  updatePassword: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { newPassword, confirmPassword } = req.body;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
+        return helperWrapper.response(
+          res,
+          404,
+          `Get data user by id ${id} not found`,
+          null
+        );
+      }
+
+      if (newPassword !== confirmPassword) {
+        return helperWrapper.response(
+          res,
+          400,
+          `Password does not match`,
+          null
+        );
+      }
+
+      const salt = await bcryptjs.genSalt(10);
+      const passwordHash = await bcryptjs.hash(newPassword, salt);
+
+      const setData = { password: passwordHash };
+
+      const result = await userModel.updateUser(setData, id);
+
+      return helperWrapper.response(res, 200, `Success update password`, {
+        id: result.id,
+      });
+    } catch (error) {
+      return helperWrapper.response(
+        res,
+        400,
+        `Bad request (${error.message})`,
         null
       );
     }
@@ -129,7 +142,10 @@ module.exports = {
   },
   getDashboardUser: async (req, res) => {
     try {
-      const { movieId, location, premiere } = req.query;
+      let { movieId, location, premiere } = req.query;
+      movieId = movieId || "";
+      premiere = premiere || "";
+      location = location || "";
       const result = await userModel.getDashboardUser(
         movieId,
         location,

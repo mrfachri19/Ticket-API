@@ -1,16 +1,24 @@
 const connection = require("../../config/mysql");
 
 module.exports = {
-  getAllSchedule: (limit, offset, search, sort) =>
+  getAllSchedule: (
+    limit,
+    offset,
+    searchLocation,
+    searchMovieId,
+    dateStart,
+    dateEnd,
+    sort
+  ) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM schedule WHERE location LIKE ? OR movieId = ? ORDER BY ${sort} LIMIT ? OFFSET ?`,
-        [`%${search}%`, search, limit, offset],
-        (error, result) => {
-          if (!error) {
+        `SELECT * FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%' AND dateStart <= '${dateStart}' AND dateEnd >= '${dateEnd}' ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        [limit, offset],
+        (err, result) => {
+          if (!err) {
             resolve(result);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );
@@ -43,15 +51,15 @@ module.exports = {
         }
       );
     }),
-  getCountSchedule: () =>
+  getCountSchedule: (searchLocation, searchMovieId) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT COUNT(*) AS total FROM schedule",
-        (error, result) => {
-          if (!error) {
+        `SELECT COUNT(*) AS total FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%'`,
+        (err, result) => {
+          if (!err) {
             resolve(result[0].total);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );
