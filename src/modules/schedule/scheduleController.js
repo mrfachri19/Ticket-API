@@ -1,3 +1,4 @@
+const moment = require("moment");
 const scheduleModel = require("./scheduleModel");
 const helperWrapper = require("../../helper/wrapper");
 const redis = require("../../config/redis");
@@ -117,43 +118,43 @@ module.exports = {
       );
     }
   },
-  getScheduleByIdMovie: async (req, res) => {
-    try {
-      const { id } = req.params;
-      const result = await scheduleModel.getScheduleByIdMovie(id);
-      const newResult = result.map((item) => {
-        const data = {
-          ...item,
-          time: item.time.split(","),
-        };
-        return data;
-      });
-      if (result.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `data by id ${id} not found !`,
-          null
-        );
-      }
+  // getScheduleByIdMovie: async (req, res) => {
+  //   try {
+  //     const { id } = req.params;
+  //     const result = await scheduleModel.getScheduleByIdMovie(id);
+  //     const newResult = result.map((item) => {
+  //       const data = {
+  //         ...item,
+  //         time: item.time.split(","),
+  //       };
+  //       return data;
+  //     });
+  //     if (result.length < 1) {
+  //       return helperWrapper.response(
+  //         res,
+  //         404,
+  //         `data by id ${id} not found !`,
+  //         null
+  //       );
+  //     }
 
-      redis.setex(`getSchedule:${id}`, 3600, JSON.stringify(result));
+  //     redis.setex(`getSchedule:${id}`, 3600, JSON.stringify(result));
 
-      return helperWrapper.response(
-        res,
-        200,
-        "succes get data by id",
-        newResult
-      );
-    } catch (error) {
-      return helperWrapper.response(
-        res,
-        400,
-        `bad request (${error.message})`,
-        null
-      );
-    }
-  },
+  //     return helperWrapper.response(
+  //       res,
+  //       200,
+  //       "succes get data by id",
+  //       newResult
+  //     );
+  //   } catch (error) {
+  //     return helperWrapper.response(
+  //       res,
+  //       400,
+  //       `bad request (${error.message})`,
+  //       null
+  //     );
+  //   }
+  // },
   postSchedule: async (req, res) => {
     try {
       const { movieId, premiere, price, location, dateStart, dateEnd, time } =
@@ -165,8 +166,9 @@ module.exports = {
         location,
         dateStart,
         dateEnd,
-        time,
+        time: time.split(" ").join(""),
       };
+
       const result = await scheduleModel.postSchedule(setData);
       return helperWrapper.response(res, 200, "Succes create data", result);
     } catch (error) {
@@ -199,7 +201,7 @@ module.exports = {
         location,
         dateStart,
         dateEnd,
-        time,
+        time: time.split(" ").join(""),
         updatedAt: new Date(Date.now()),
       };
       // untuk mengupdate salah satu field saja
@@ -239,14 +241,6 @@ module.exports = {
           null
         );
       }
-      // const { name, category, releaseDate, synopsis } = req.body;
-      // const setData = {
-      //   name,
-      //   category,
-      //   releaseDate,
-      //   synopsis,
-      //   updatedAt: new Date(Date.now()),
-      // };
 
       const result = await scheduleModel.deleteSchedule(id);
       return helperWrapper.response(res, 200, "succes delete data", result);
@@ -256,6 +250,46 @@ module.exports = {
         400,
         `bad request (${error.message})`,
         null
+      );
+    }
+  },
+  getScheduleFilterByDateStartEnd: async (request, response) => {
+    try {
+      const { dateStart, dateEnd } = request.query;
+      const schedules = await scheduleModel.getScheduleByDateStartAndEnd(
+        dateStart,
+        dateEnd
+      );
+      const newDataSchedule = [];
+      // eslint-disable-next-line array-callback-return
+      schedules.map((value) => {
+        const setNewValue = {
+          ...value,
+          time: value.time.split(","),
+          dateStart: moment(value.dateStart).format("YYYY-MM-DD"),
+          dateEnd: moment(value.dateEnd).format("YYYY-MM-DD"),
+        };
+        newDataSchedule.push(setNewValue);
+      });
+      if (newDataSchedule.length < 1) {
+        return helperWrapper.response(
+          response,
+          404,
+          "Schedule not found!",
+          null
+        );
+      }
+      return helperWrapper.response(
+        response,
+        200,
+        "Success Get Data By Date Start and Date End!",
+        newDataSchedule
+      );
+    } catch (error) {
+      return helperWrapper.response(
+        response,
+        400,
+        `Bad Request ${error.message}`
       );
     }
   },

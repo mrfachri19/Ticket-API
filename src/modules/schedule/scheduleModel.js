@@ -37,20 +37,20 @@ module.exports = {
         }
       );
     }),
-  getScheduleByIdMovie: (id) =>
-    new Promise((resolve, reject) => {
-      connection.query(
-        "SELECT * FROM schedule WHERE movieId = ?",
-        id,
-        (error, result) => {
-          if (!error) {
-            resolve(result);
-          } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
-          }
-        }
-      );
-    }),
+  // getScheduleByIdMovie: (id) =>
+  //   new Promise((resolve, reject) => {
+  //     connection.query(
+  //       "SELECT * FROM schedule WHERE movieId = ?",
+  //       id,
+  //       (error, result) => {
+  //         if (!error) {
+  //           resolve(result);
+  //         } else {
+  //           reject(new Error(`SQL : ${error.sqlMessage}`));
+  //         }
+  //       }
+  //     );
+  //   }),
   getCountSchedule: (searchLocation, searchMovieId) =>
     new Promise((resolve, reject) => {
       connection.query(
@@ -111,5 +111,20 @@ module.exports = {
           reject(new Error(`SQL : ${error.sqlMessage}`));
         }
       });
+    }),
+  getScheduleByDateStartAndEnd: (dateStart, dateEnd) =>
+    new Promise((resolve) => {
+      connection.query(
+        "SELECT * FROM schedule WHERE dateStart = ? AND dateEnd = ?",
+        [dateStart, dateEnd],
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            // eslint-disable-next-line no-new
+            new Error(`Message : ${error.message}`);
+          }
+        }
+      );
     }),
 };

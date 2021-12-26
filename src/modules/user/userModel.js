@@ -3,15 +3,19 @@ const connection = require("../../config/mysql");
 module.exports = {
   getUserById: (id) =>
     new Promise((resolve, reject) => {
-      connection.query("SELECT * FROM user WHERE id = ?", id, (err, result) => {
-        if (!err) {
-          const newResult = result;
-          delete newResult[0].password;
-          resolve(newResult);
-        } else {
-          reject(new Error(`SQL : ${err.sqlMessage}`));
+      const query = connection.query(
+        "SELECT user.id, user.firstName, user.lastName, user.email, user.noTelp, user.role, user.image FROM user WHERE id = ?",
+        id,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`Message : ${error.message}`));
+          }
         }
-      });
+      );
+      // eslint-disable-next-line no-console
+      console.log(query.sql);
     }),
   updateUser: (data, id) =>
     new Promise((resolve, reject) => {

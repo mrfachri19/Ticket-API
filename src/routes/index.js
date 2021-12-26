@@ -7,19 +7,14 @@ const scheduleRoutes = require("../modules/schedule/scheduleRoutes");
 const bookingRoutes = require("../modules/booking/bookingRoutes");
 const authRoutes = require("../modules/auth/authRoutes");
 const userRoutes = require("../modules/user/userRoutes");
-// const bookingRoutes = require("../modules/booking/bookingRoutes");
-
-// Router.get("/", (request, response) => {
-//   response.send("hello World");
-// });
-// Router.use("auth", authRoutes)
+const seatBookingRoutes = require("../modules/booking/seatBookingRoutes");
 
 Router.use("/hello", helloRoutes);
 Router.use("/movie", movieRoutes);
 Router.use("/schedule", scheduleRoutes);
 Router.use("/booking", bookingRoutes);
+Router.use("/seat", seatBookingRoutes);
 Router.use("/auth", authRoutes);
 Router.use("/user", userRoutes);
-// Router.use("/booking", bookingRoutes);
 
 module.exports = Router;

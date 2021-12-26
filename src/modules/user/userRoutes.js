@@ -10,13 +10,17 @@ const middlewareUpload = require("../../middleware/uploadUser");
 //= ===================================================================
 
 Router.get(
-  "/:id",
+  "/",
   middlewareAuth.authentication,
   middlewareRedis.getUserRedis,
   userController.getUserById
 );
-Router.patch("/:id", userController.updateUser);
-Router.get("/", userController.getDashboardUser);
+Router.patch(
+  "/update-profile",
+  middlewareAuth.authentication,
+  userController.updateUser
+);
+Router.get("/dashboard", userController.getDashboardUser);
 Router.patch(
   "/update-password/:id",
   middlewareAuth.authentication,

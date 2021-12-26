@@ -81,11 +81,6 @@ module.exports = {
       const { email, password } = req.body;
       const checkUser = await authModel.getUserByEmail(email);
 
-      // PROSES PENGECEKAN EMAIL SUDAH PERNAH TERDAFTAR ATAU BLM DI DATABASE
-      if (checkUser.length < 1) {
-        return helperWrapper.response(res, 404, "Email not registed", null);
-      }
-
       // Proses Validasi input form
       if (email.length < 1 || password.length < 1) {
         return helperWrapper.response(

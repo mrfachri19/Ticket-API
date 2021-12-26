@@ -7,6 +7,11 @@ const middlewareAuth = require("../../middleware/auth");
 const middlewareRedis = require("../../middleware/redis");
 
 Router.get(
+  "/date",
+  middlewareAuth.authentication,
+  scheduleController.getScheduleFilterByDateStartEnd
+);
+Router.get(
   "/",
   middlewareRedis.getScheduleRedis,
   scheduleController.getAllSchedule
@@ -17,26 +22,24 @@ Router.get(
   middlewareRedis.getScheduleByIdRedis,
   scheduleController.getScheduleById
 );
-Router.get(
-  "/:id",
-  middlewareAuth.authentication,
-  middlewareRedis.getScheduleByIdRedis,
-  scheduleController.getScheduleByIdMovie
-);
 Router.post(
-  "/",
-  middlewareAuth.isAdmin,
+  "/create",
   middlewareAuth.authentication,
+  middlewareAuth.isAdmin,
   middlewareRedis.clearScheduleRedis,
   scheduleController.postSchedule
 );
 Router.patch(
-  "/:id",
+  "/update/:id",
+  middlewareAuth.authentication,
+  middlewareAuth.isAdmin,
   middlewareRedis.clearScheduleRedis,
   scheduleController.updateSchedule
 );
 Router.delete(
-  "/:id",
+  "/delete/:id",
+  middlewareAuth.authentication,
+  middlewareAuth.isAdmin,
   middlewareRedis.clearScheduleRedis,
   scheduleController.deleteSchedule
 );

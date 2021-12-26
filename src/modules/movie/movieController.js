@@ -1,12 +1,14 @@
+/* eslint-disable guard-for-in */
+/* eslint-disable no-restricted-syntax */
 const movieModel = require("./movieModel");
 const helperWrapper = require("../../helper/wrapper");
 const redis = require("../../config/redis");
 const deleteFile = require("../../helper/upload/deleteFile");
 
 module.exports = {
-  getAllMovie: async (request, response) => {
+  getAllMovie: async (req, res) => {
     try {
-      let { page, limit, search, month, sort } = request.query;
+      let { page, limit, search, month, sort } = req.query;
       page = Number(page) || 1;
       limit = Number(limit) || 10;
       search = search || "";
@@ -14,9 +16,9 @@ module.exports = {
       month = month || "";
 
       let offset = page * limit - limit;
-      const totalData = await movieModel.getCountMovie();
-
+      const totalData = await movieModel.getCountMovie(search);
       const totalPage = Math.ceil(totalData / limit);
+
       if (totalPage < page) {
         offset = 0;
         page = 1;
@@ -38,27 +40,27 @@ module.exports = {
       );
 
       if (result.length < 1) {
-        return helperWrapper.response(response, 200, `Data not found !`, []);
+        return helperWrapper.response(res, 200, `Data not found !`, []);
       }
 
       redis.setex(
-        `getMovie:${JSON.stringify(request.query)}`,
+        `getMovie:${JSON.stringify(req.query)}`,
         3600,
         JSON.stringify({ result, pageInfo })
       );
 
       return helperWrapper.response(
-        response,
+        res,
         200,
-        "Succes get data",
+        "Success get data",
         result,
         pageInfo
       );
     } catch (error) {
       return helperWrapper.response(
-        response,
+        res,
         400,
-        `bad request (${error.message})`,
+        `Bad request (${error.message})`,
         null
       );
     }
@@ -160,13 +162,6 @@ module.exports = {
         }
       });
 
-      // masi butuh perbaikan
-      // for (const data in setData) {
-      //   if (!setData[data]) {
-      //     delete setData[data];
-      //   }
-      // }
-
       const result = await movieModel.updateMovie(setData, id);
       return helperWrapper.response(res, 200, "succes update data", result);
     } catch (error) {
@@ -190,14 +185,6 @@ module.exports = {
           null
         );
       }
-      // const { name, category, releaseDate, synopsis } = req.body;
-      // const setData = {
-      //   name,
-      //   category,
-      //   releaseDate,
-      //   synopsis,
-      //   updatedAt: new Date(Date.now()),
-      // };
 
       const result = await movieModel.deleteMovie(id);
       deleteFile(`public/uploads/movie/${checkId[0].image}`);
@@ -207,6 +194,28 @@ module.exports = {
         res,
         400,
         `bad request (${error.message})`,
+        null
+      );
+    }
+  },
+  getMovieUpcomming: async (request, response) => {
+    try {
+      const { date } = request.query;
+      const upcommingMovies = await movieModel.upcommingMovie(date);
+      if (upcommingMovies.length < 1) {
+        return helperWrapper.response(response, 404, "Movie not found!", null);
+      }
+      return helperWrapper.response(
+        response,
+        200,
+        "Success Get data upcomming movie!",
+        upcommingMovies
+      );
+    } catch (error) {
+      return helperWrapper.response(
+        response,
+        400,
+        `Bad Request ${error.message}`,
         null
       );
     }

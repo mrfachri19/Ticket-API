@@ -1,12 +1,14 @@
 const bcryptjs = require("bcryptjs");
+const fs = require("fs");
 const helperWrapper = require("../../helper/wrapper");
 const userModel = require("./userModel");
 const redis = require("../../config/redis");
+const deleteFile = require("../../helper/upload/deleteFile");
 
 module.exports = {
   getUserById: async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.decodeToken;
       const result = await userModel.getUserById(id);
       if (result.length < 1) {
         return helperWrapper.response(
@@ -31,40 +33,48 @@ module.exports = {
     }
   },
 
-  updateUser: async (req, res) => {
+  updateUser: async (request, response) => {
     try {
-      const { id } = req.params;
-      const checkId = await userModel.getUserById(id);
-      if (checkId.length < 1) {
+      const userId = request.decodeToken.id;
+      const { body } = request;
+      const user = await userModel.getUserById(userId);
+      const setBody = {
+        ...body,
+        image: request.file ? request.file.filename : user[0].image,
+      };
+      if (user[0].id !== userId) {
+        return helperWrapper.response(response, 404, "user not found!", null);
+      }
+      const newDataProfile = await userModel.updateUser(setBody, userId);
+      if (user[0].image === null) {
         return helperWrapper.response(
-          res,
-          404,
-          `data by id ${id} not found !`,
-          null
+          response,
+          200,
+          "Success Update Profile!",
+          newDataProfile
         );
       }
-      const { firstName, lastName, noTelp, email } = req.body;
-      const setData = {
-        firstName,
-        lastName,
-        noTelp,
-        email,
-        updatedAt: new Date(Date.now()),
-      };
-      // untuk mengupdate salah satu field saja
-      Object.keys(setData).forEach((data) => {
-        if (!setData[data]) {
-          delete setData[data];
-        }
-      });
 
-      const result = await userModel.updateUser(setData, id);
-      return helperWrapper.response(res, 200, "succes update data", result);
+      if (request.file && fs.existsSync(`${user[0].image}`)) {
+        deleteFile(`public/uploads/user/${user[0].image}`);
+        return helperWrapper.response(
+          response,
+          200,
+          "Success update profile!!",
+          newDataProfile
+        );
+      }
+      deleteFile(`public/uploads/user/${user[0].image}`);
+      return helperWrapper.response(
+        response,
+        200,
+        "Success update profile!!",
+        newDataProfile
+      );
     } catch (error) {
       return helperWrapper.response(
-        res,
-        400,
-        `bad request (${error.message})`,
+        response,
+        `Bad Request : ${error.message}`,
         null
       );
     }

@@ -20,24 +20,24 @@ module.exports = {
       connection.query(
         "SELECT * FROM movie WHERE id = ?",
         id,
-        (error, result) => {
-          if (!error) {
+        (err, result) => {
+          if (!err) {
             resolve(result);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );
     }),
-  getCountMovie: () =>
+  getCountMovie: (search) =>
     new Promise((resolve, reject) => {
       connection.query(
-        "SELECT COUNT(*) AS total FROM movie",
-        (error, result) => {
-          if (!error) {
+        `SELECT COUNT(*) AS total FROM movie WHERE name LIKE '%${search}%'`,
+        (err, result) => {
+          if (!err) {
             resolve(result[0].total);
           } else {
-            reject(new Error(`SQL : ${error.sqlMessage}`));
+            reject(new Error(`SQL : ${err.sqlMessage}`));
           }
         }
       );
@@ -89,5 +89,19 @@ module.exports = {
           reject(new Error(`SQL : ${error.sqlMessage}`));
         }
       });
+    }),
+  upcommingMovie: (date) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM movie WHERE MONTHNAME(releaseDate) = ?",
+        date,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`Message : ${error.message}`));
+          }
+        }
+      );
     }),
 };
