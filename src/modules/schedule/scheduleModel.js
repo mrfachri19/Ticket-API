@@ -12,7 +12,7 @@ module.exports = {
   ) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%' AND dateStart <= '${dateStart}' AND dateEnd >= '${dateEnd}' ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        `SELECT * FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%' ORDER BY ${sort} LIMIT ? OFFSET ?`,
         [limit, offset],
         (err, result) => {
           if (!err) {
