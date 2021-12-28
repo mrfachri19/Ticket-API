@@ -6,24 +6,13 @@ const redis = require("../../config/redis");
 module.exports = {
   getAllSchedule: async (request, response) => {
     try {
-      let {
-        page,
-        limit,
-        searchLocation,
-        searchMovieId,
-        dateStart,
-        dateEnd,
-        sort,
-      } = request.query;
+      let { page, limit, searchLocation, searchMovieId, sort } = request.query;
       // tambahkan proses default value
       page = Number(page) || 1;
       limit = Number(limit) || 15;
       searchLocation = searchLocation || "";
       searchMovieId = searchMovieId || "";
       sort = sort || "price ASC";
-      dateStart = dateStart || new Date().toISOString().split("T")[0];
-      dateEnd = dateEnd || "";
-
       let offset = page * limit - limit;
       const totalData = await scheduleModel.getCountSchedule(
         searchLocation,
@@ -48,8 +37,6 @@ module.exports = {
         offset,
         searchLocation,
         searchMovieId,
-        dateStart,
-        dateEnd,
         sort
       );
       const newResult = result.map((item) => {
@@ -78,6 +65,46 @@ module.exports = {
         400,
         `bad request (${error.message})`,
         null
+      );
+    }
+  },
+  getScheduleFilterByDateStartEnd: async (request, response) => {
+    try {
+      const { dateStart, dateEnd } = request.query;
+      const schedules = await scheduleModel.getScheduleByDateStartAndEnd(
+        dateStart,
+        dateEnd
+      );
+      const newDataSchedule = [];
+      // eslint-disable-next-line array-callback-return
+      schedules.map((value) => {
+        const setNewValue = {
+          ...value,
+          time: value.time.split(","),
+          dateStart: moment(value.dateStart).format("YYYY-MM-DD"),
+          dateEnd: moment(value.dateEnd).format("YYYY-MM-DD"),
+        };
+        newDataSchedule.push(setNewValue);
+      });
+      if (newDataSchedule.length < 1) {
+        return helperWrapper.response(
+          response,
+          404,
+          "Schedule not found!",
+          null
+        );
+      }
+      return helperWrapper.response(
+        response,
+        200,
+        "Success Get Data By Date Start and Date End!",
+        newDataSchedule
+      );
+    } catch (error) {
+      return helperWrapper.response(
+        response,
+        400,
+        `Bad Request ${error.message}`
       );
     }
   },
@@ -250,46 +277,6 @@ module.exports = {
         400,
         `bad request (${error.message})`,
         null
-      );
-    }
-  },
-  getScheduleFilterByDateStartEnd: async (request, response) => {
-    try {
-      const { dateStart, dateEnd } = request.query;
-      const schedules = await scheduleModel.getScheduleByDateStartAndEnd(
-        dateStart,
-        dateEnd
-      );
-      const newDataSchedule = [];
-      // eslint-disable-next-line array-callback-return
-      schedules.map((value) => {
-        const setNewValue = {
-          ...value,
-          time: value.time.split(","),
-          dateStart: moment(value.dateStart).format("YYYY-MM-DD"),
-          dateEnd: moment(value.dateEnd).format("YYYY-MM-DD"),
-        };
-        newDataSchedule.push(setNewValue);
-      });
-      if (newDataSchedule.length < 1) {
-        return helperWrapper.response(
-          response,
-          404,
-          "Schedule not found!",
-          null
-        );
-      }
-      return helperWrapper.response(
-        response,
-        200,
-        "Success Get Data By Date Start and Date End!",
-        newDataSchedule
-      );
-    } catch (error) {
-      return helperWrapper.response(
-        response,
-        400,
-        `Bad Request ${error.message}`
       );
     }
   },
