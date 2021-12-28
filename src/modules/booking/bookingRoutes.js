@@ -16,7 +16,8 @@ Router.post("/midtrans-notification", bookingController.postMidtransNotif);
 Router.get(
   "/ticket/:id",
   middlewareAuth.authentication,
-  bookingController.exportTicket
+  bookingController.exportTicketUserBooking
 );
+Router.get("/used-ticket/:id", bookingController.ticketAlreadyUsed);
 
 module.exports = Router;

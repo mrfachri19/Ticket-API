@@ -78,4 +78,50 @@ module.exports = {
         }
       );
     }),
+  getExportTicketByIdBooking: (id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT b.id, b.userId, b.dateBooking, b.timeBooking, b.movieId, b.scheduleId, b.scheduleId, b.totalTicket, b.totalPayment, b.paymentMethod, b.statusPayment, bs.seat FROM booking AS b JOIN seatbooking AS bs ON b.id = bs.bookingId WHERE b.userId = ?",
+        id,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`Message : ${error.message}`));
+          }
+        }
+      );
+    }),
+  ticketAlready: (statusTicket, id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "UPDATE booking SET statusUsed = ? WHERE id = ?",
+        [statusTicket, id],
+        (error) => {
+          if (!error) {
+            const setNewData = {
+              id,
+              statusTicket,
+            };
+            resolve(setNewData);
+          } else {
+            reject(new Error(`Message : ${error.message}`));
+          }
+        }
+      );
+    }),
+  detailBookingById: (id) =>
+    new Promise((resolve, reject) => {
+      connection.query(
+        "SELECT * FROM booking WHERE id = ?",
+        id,
+        (error, results) => {
+          if (!error) {
+            resolve(results);
+          } else {
+            reject(new Error(`Message : ${error.message}`));
+          }
+        }
+      );
+    }),
 };

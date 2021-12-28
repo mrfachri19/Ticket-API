@@ -1,7 +1,9 @@
+/* eslint-disable object-shorthand */
 const { v4: uuidv4 } = require("uuid");
 const ejs = require("ejs");
 const path = require("path");
-const pdf = require("html-pdf");
+const htmlPdf = require("html-pdf");
+const moment = require("moment");
 const bookingModel = require("./bookingModel");
 const helperWrapper = require("../../helper/wrapper");
 const scheduleModel = require("../schedule/scheduleModel");
@@ -268,78 +270,107 @@ module.exports = {
       );
     }
   },
-  exportTicket: async (req, res) => {
+
+  // eslint-disable-next-line func-names
+  exportTicketUserBooking: async function (request, response) {
     try {
-      const { id } = req.params;
+      const { id } = request.params;
       const fileName = `ticket-${id}.pdf`;
+      const userBooking = await bookingModel.getExportTicketByIdBooking(id);
+      // join seat => ['A1', 'A2', 'A3']
+      // console.log(userBooking);
 
-      // CHECK BOOKING
-      const booking = await bookingModel.getBookingById(id);
-      if (booking.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `Data by id ${id} not found !`,
-          null
-        );
-      }
-
-      const newBooking = [
-        {
-          ...booking[0],
-          seat: [],
-          dateBooking: booking[0].dateBooking.toISOString().split("T")[0],
-        },
-      ];
-
-      booking.forEach((item) => {
-        newBooking[0].seat.push(item.seat);
+      const seatBooking = userBooking.map((value) => value.seat);
+      const newData = [];
+      // eslint-disable-next-line array-callback-return
+      userBooking.map((value) => {
+        const setNewData = {
+          ...value,
+        };
+        newData.push(setNewData);
       });
-
-      // PROSES EXPORT HTML to PDF
+      const newDataBooking = newData[0];
+      const newDataBookingTicket = {
+        ...newDataBooking,
+        dateBooking: moment().format("DD MMM"),
+        timeBooking: moment().format("LT"),
+        seat: seatBooking,
+        ticketActive: `http://${request.get("host")}/booking/used-ticket/${
+          newDataBooking.id
+        }`,
+      };
       ejs.renderFile(
         path.resolve("./src/templates/pdf/ticket.ejs"),
-        { newBooking },
-        (err, result) => {
-          // eslint-disable-next-line no-empty
-          if (err) {
-          } else {
+        { newDataBookingTicket },
+        (error, results) => {
+          if (!error) {
             const options = {
               height: "11.25in",
-              width: "8.5in",
-              header: {
-                height: "20mm",
-              },
-              footer: {
-                height: "20mm",
-              },
+              width: "10.5in",
             };
-            pdf
-              .create(result, options)
-              .toFile(
-                path.resolve(`./public/generate/${fileName}`),
-                (errPdf) => {
-                  // eslint-disable-next-line no-empty
-                  if (errPdf) {
-                  } else {
-                    return helperWrapper.response(
-                      res,
-                      200,
-                      "Success export ticket",
-                      { url: `http://localhost:3001/generate/${fileName}` }
-                    );
-                  }
+            htmlPdf.create(results, options).toFile(
+              path.resolve(`./public/generate/${fileName}`),
+              // eslint-disable-next-line no-shadow
+              (error) => {
+                if (error) {
+                  return helperWrapper.response(response, 400, error.message);
                 }
-              );
+                return helperWrapper.response(
+                  response,
+                  200,
+                  "Success Generate Ticket!",
+                  [newDataBookingTicket]
+                );
+              }
+            );
           }
         }
       );
     } catch (error) {
       return helperWrapper.response(
-        res,
+        response,
         400,
-        `Bad request (${error.message})`,
-        null
+        `Bad Request : ${error.message}`
+      );
+    }
+  },
+  ticketAlreadyUsed: async (request, response) => {
+    try {
+      const bookingId = request.params.id;
+      const checkBooking = await bookingModel.detailBookingById(bookingId);
+      if (checkBooking.length < 1) {
+        return helperWrapper.response(
+          response,
+          404,
+          "Booking not found!",
+          null
+        );
+      }
+
+      const userUsedTicket = "alreadyUsed";
+      const newDataTicket = await bookingModel.ticketAlready(
+        userUsedTicket,
+        bookingId
+      );
+      if (checkBooking[0].statusUsed === "active") {
+        return helperWrapper.response(
+          response,
+          200,
+          "Success Change status, Ticket has been already used!",
+          newDataTicket
+        );
+      }
+      return helperWrapper.response(
+        response,
+        409,
+        "Ticket sudah terpakai!",
+        checkBooking
+      );
+    } catch (error) {
+      return helperWrapper.response(
+        response,
+        400,
+        `Bad Request : ${error.message}`
       );
     }
   },
