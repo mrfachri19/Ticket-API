@@ -124,28 +124,39 @@ module.exports = {
   },
   updateImage: async (req, res) => {
     try {
-      const { id } = req.params;
-      const checkId = await userModel.getUserById(id);
-      if (checkId.length < 1) {
+      const { id } = req.decodeToken;
+
+      const user = await userModel.getUserById(id);
+      if (user.length < 1) {
         return helperWrapper.response(
           res,
           404,
-          `data by id ${id} not found !`,
+          `Get data user by id ${id} not found`,
           null
         );
       }
 
+      if (user[0].image) {
+        deleteFile(`public/uploads/user/${user[0].image}`);
+      }
+
       const setData = {
         image: req.file ? req.file.filename : null,
+        updatedAt: new Date(Date()),
       };
 
-      const result = await userModel.updateImage(setData, id);
-      return helperWrapper.response(res, 200, "succes update data", result);
+      const result = await userModel.updateUser(setData, id);
+      return helperWrapper.response(
+        res,
+        200,
+        "Success update image user",
+        result
+      );
     } catch (error) {
       return helperWrapper.response(
         res,
         400,
-        `bad request (${error.message})`,
+        `Bad request (${error.message})`,
         null
       );
     }

@@ -26,5 +26,10 @@ Router.patch(
   middlewareAuth.authentication,
   userController.updatePassword
 );
-Router.post("/:id", middlewareUpload, userController.updateImage);
+Router.patch(
+  "/update-image",
+  middlewareAuth.authentication,
+  middlewareUpload,
+  userController.updateImage
+);
 module.exports = Router;
