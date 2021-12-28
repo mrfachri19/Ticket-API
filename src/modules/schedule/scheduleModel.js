@@ -12,8 +12,8 @@ module.exports = {
   ) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%' ORDER BY ${sort} LIMIT ? OFFSET ?`,
-        [limit, offset],
+        `SELECT * FROM schedule WHERE location LIKE '%${searchLocation}%' AND movieId LIKE '%${searchMovieId}%'  ORDER BY ${sort} LIMIT ? OFFSET ?`,
+        [limit, offset, sort],
         (err, result) => {
           if (!err) {
             resolve(result);
