@@ -6,7 +6,7 @@ module.exports = {
       connection.query(
         `SELECT * FROM schedule WHERE ${
           searchMovieId && `movieId = ${searchMovieId} AND`
-        }  location LIKE "%${searchLocation}%" ORDER BY price ${sort} LIMIT ? OFFSET ?`,
+        }  location LIKE "%${searchLocation}%" ORDER BY ${sort} LIMIT ? OFFSET ?`,
         [limit, offset, sort],
         (err, result) => {
           if (!err) {
