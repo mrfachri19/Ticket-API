@@ -4,7 +4,7 @@ module.exports = {
   getAllSchedule: (limit, offset, searchLocation, searchMovieId, sort) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT * FROM schedule WHERE WHERE ${
+        `SELECT * FROM schedule WHERE ${
           searchMovieId && `movieId = ${searchMovieId} AND`
         }  location LIKE "%${searchLocation}%" ORDER BY price ${sort} LIMIT ? OFFSET ?`,
         [limit, offset, sort],
