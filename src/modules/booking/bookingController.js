@@ -48,6 +48,7 @@ module.exports = {
   getBookingByUserId: async (req, res) => {
     try {
       const { id } = req.decodeToken;
+      console.log(req.decodeToken);
 
       const booking = await bookingModel.getBookingByUserId(id);
 
@@ -55,7 +56,7 @@ module.exports = {
         return helperWrapper.response(
           res,
           404,
-          `Data by id ${id} not found !`,
+          `Data by ${id} not found !`,
           null
         );
       }
@@ -272,7 +273,7 @@ module.exports = {
   },
 
   // eslint-disable-next-line func-names
-  exportTicketUserBooking: async function (request, response) {
+  exportTicketUserBooking: async (request, response) => {
     try {
       const { id } = request.params;
       const fileName = `ticket-${id}.pdf`;

@@ -14,7 +14,7 @@ module.exports = {
         return helperWrapper.response(
           res,
           404,
-          `data by id ${id} not found !`,
+          `data by ${id} not found !`,
           null
         );
       }

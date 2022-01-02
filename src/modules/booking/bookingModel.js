@@ -17,17 +17,18 @@ module.exports = {
     }),
   getBookingByUserId: (id) =>
     new Promise((resolve, reject) => {
-      connection.query(
-        "SELECT b.id, b.userId, b.dateBooking, b.timeBooking, b.movieId, b.scheduleId, b.totalTicket, b.totalPayment, b.paymentMethod, b.statusPayment, b.statusUsed, sb.seat FROM booking AS b JOIN seatBooking AS sb ON b.id = sb.bookingId WHERE b.userId = ?",
+      const query = connection.query(
+        "SELECT b.id, b.userId, b.dateBooking, b.timeBooking, b.movieId, b.scheduleId, b.scheduleId, b.totalTicket, b.totalPayment, b.paymentMethod, b.statusPayment, bs.seat FROM booking AS b JOIN seatbooking AS bs ON b.id = bs.bookingId WHERE b.userId = ?",
         id,
-        (err, result) => {
-          if (!err) {
-            resolve(result);
+        (error, results) => {
+          if (!error) {
+            resolve(results);
           } else {
-            reject(new Error(`SQL : ${err.sqlMessage}`));
+            reject(new Error(`Message : ${error.message}`));
           }
         }
       );
+      console.log(query.sql);
     }),
 
   getSeatBooking: (scheduleId, movieId, dateBooking, timeBooking) =>

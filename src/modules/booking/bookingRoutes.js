@@ -5,7 +5,7 @@ const Router = express.Router();
 const middlewareAuth = require("../../middleware/auth");
 const bookingController = require("./bookingController");
 
-Router.get("/:id", bookingController.getBookingById);
+Router.get("/booking-id/:id", bookingController.getBookingById);
 Router.get(
   "/user-id",
   middlewareAuth.authentication,
