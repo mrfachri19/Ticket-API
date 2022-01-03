@@ -34,7 +34,7 @@ module.exports = {
   getSeatBooking: (scheduleId, movieId, dateBooking, timeBooking) =>
     new Promise((resolve, reject) => {
       connection.query(
-        `SELECT seatBooking.id, seatBooking.seat FROM seatBooking WHERE scheduleId LIKE '%${scheduleId}%' AND movieId LIKE '%${movieId}%' AND dateBooking LIKE '%${dateBooking}%' AND timeBooking LIKE '%${timeBooking}%'`,
+        `SELECT seatbooking.id, seatbooking.seat FROM seatbooking WHERE scheduleId LIKE '%${scheduleId}%' AND movieId LIKE '%${movieId}%' AND dateBooking LIKE '%${dateBooking}%' AND timeBooking LIKE '%${timeBooking}%'`,
         (err, result) => {
           if (!err) {
             resolve(result);
