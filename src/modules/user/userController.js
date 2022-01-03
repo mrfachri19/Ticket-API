@@ -173,24 +173,29 @@ module.exports = {
         premiere
       );
       if (result.length < 1) {
-        return helperWrapper.response(
-          res,
-          404,
-          `data by id ${(movieId, location, premiere)} not found !`,
-          null
-        );
+        return helperWrapper.response(res, 200, "Data not found", []);
       }
+
+      const newResult = result.map((item) => {
+        const data = {
+          ...item,
+          month: item.month.slice(0, 3),
+        };
+
+        return data;
+      });
+
       return helperWrapper.response(
         res,
         200,
-        "succes get data dashboard ",
-        result
+        "Success get data dashboard",
+        newResult
       );
     } catch (error) {
       return helperWrapper.response(
         res,
         400,
-        `bad request (${error.message})`,
+        `Bad request (${error.message})`,
         null
       );
     }
