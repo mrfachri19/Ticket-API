@@ -57,7 +57,7 @@ module.exports = {
 
   postSeatBooking: (data) =>
     new Promise((resolve, reject) => {
-      connection.query("INSERT INTO seatBooking SET ?", data, (err, result) => {
+      connection.query("INSERT INTO seatbooking SET ?", data, (err, result) => {
         if (!err) {
           resolve(result);
         } else {
