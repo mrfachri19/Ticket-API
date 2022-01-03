@@ -81,7 +81,7 @@ module.exports = {
   },
   updatePassword: async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.decodeToken;
       const { newPassword, confirmPassword } = req.body;
 
       const user = await userModel.getUserById(id);

@@ -22,7 +22,7 @@ Router.patch(
 );
 Router.get("/dashboard", userController.getDashboardUser);
 Router.patch(
-  "/update-password/:id",
+  "/update-password",
   middlewareAuth.authentication,
   userController.updatePassword
 );
