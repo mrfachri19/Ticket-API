@@ -226,7 +226,7 @@ module.exports = {
           // [1]
           const setData = {
             statusPayment: "Success",
-            statusUsed: "active",
+            statusUsed: "Active",
             updatedAt: new Date(Date()),
           };
           // MENJALANKAN MODEL UNTUK MENGUBAH STATUS BOOKING MENJADI SUKSES
@@ -237,7 +237,7 @@ module.exports = {
         // [1]
         const setData = {
           statusPayment: "Success",
-          statusUsed: "active",
+          statusUsed: "Active",
           updatedAt: new Date(Date()),
         };
         // MENJALANKAN MODEL UNTUK MENGUBAH STATUS BOOKING MENJADI SUKSES
