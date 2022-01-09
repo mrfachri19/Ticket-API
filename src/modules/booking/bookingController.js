@@ -225,8 +225,8 @@ module.exports = {
           // TODO set transaction status on your databaase to 'success'
           // [1]
           const setData = {
-            statusPayment: "success",
-            statusUsed: "Active",
+            statusPayment: "Success",
+            statusUsed: "active",
             updatedAt: new Date(Date()),
           };
           // MENJALANKAN MODEL UNTUK MENGUBAH STATUS BOOKING MENJADI SUKSES
@@ -236,12 +236,13 @@ module.exports = {
         // TODO set transaction status on your databaase to 'success'
         // [1]
         const setData = {
-          statusPayment: "success",
-          statusUsed: "Active",
+          statusPayment: "Success",
+          statusUsed: "active",
           updatedAt: new Date(Date()),
         };
         // MENJALANKAN MODEL UNTUK MENGUBAH STATUS BOOKING MENJADI SUKSES
         await bookingModel.updateBooking(setData, bookingId);
+        console.log(setData);
       } else if (transactionStatus === "deny") {
         // TODO you can ignore 'deny', because most of the time it allows payment retries
         // and later can become success
