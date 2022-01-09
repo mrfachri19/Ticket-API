@@ -18,7 +18,7 @@ module.exports = {
   getBookingByUserId: (id) =>
     new Promise((resolve, reject) => {
       const query = connection.query(
-        "SELECT b.id, b.userId, b.dateBooking, b.timeBooking, b.movieId, b.scheduleId, b.totalTicket, b.totalPayment, b.paymentMethod, b.statusPayment, bs.seat, m.name, s.premiere FROM booking AS b JOIN seatbooking AS bs ON b.id = bs.bookingId JOIN movie AS m ON b.movieId = m.id JOIN schedule as s ON b.scheduleId = s.id WHERE b.userId = ?",
+        "SELECT b.id, b.userId, b.dateBooking, b.timeBooking, b.movieId, b.scheduleId, b.totalTicket, b.totalPayment, b.paymentMethod, b.statusPayment, b.statusUsed, bs.seat, m.name, s.premiere FROM booking AS b JOIN seatbooking AS bs ON b.id = bs.bookingId JOIN movie AS m ON b.movieId = m.id JOIN schedule as s ON b.scheduleId = s.id WHERE b.userId = ?",
         id,
         (error, results) => {
           if (!error) {
