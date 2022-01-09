@@ -354,7 +354,7 @@ module.exports = {
         userUsedTicket,
         bookingId
       );
-      if (checkBooking[0].statusUsed === "active") {
+      if (checkBooking[0].statusUsed === "Active") {
         return helperWrapper.response(
           response,
           200,
